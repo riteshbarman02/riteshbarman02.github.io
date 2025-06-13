@@ -12,6 +12,7 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
   const cameraRef = useRef(null);
   const controlsRef = useRef(null);
   const starsRef = useRef([]);
+  const snowflakesRef = useRef([]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -50,29 +51,26 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
     controls.enablePan = false;
     controlsRef.current = controls;
 
-    // Star field
-    const stars = [];
-    for (let i = 0; i < 1000; i++) {
-      const star = new THREE.Mesh(
-        new THREE.SphereGeometry(0.05, 12, 12),
-        new THREE.MeshBasicMaterial({
-          color: 0xffffff,
-          transparent: true,
-          opacity: Math.random(),
-        })
+    // Snowfall
+    const snowflakes = [];
+    const snowMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+    for (let i = 0; i < 300; i++) {
+      const flake = new THREE.Mesh(
+        new THREE.SphereGeometry(0.02, 6, 6),
+        snowMaterial.clone()
       );
-      star.position.set(
-        THREE.MathUtils.randFloatSpread(100),
-        THREE.MathUtils.randFloatSpread(100),
-        THREE.MathUtils.randFloatSpread(100)
+      flake.position.set(
+        THREE.MathUtils.randFloatSpread(50),
+        Math.random() * 20 + 10, // Start above
+        THREE.MathUtils.randFloatSpread(50)
       );
-      scene.add(star);
-      stars.push(star);
+      scene.add(flake);
+      snowflakes.push(flake);
     }
-    starsRef.current = stars;
+    snowflakesRef.current = snowflakes;
 
     // GSAP camera animation
-
 
     // Resize
     const handleResize = () => {
@@ -94,13 +92,14 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
         modelRef.current.position.y = -Math.sin(clock.elapsedTime) * 0.1;
       }
 
-      starsRef.current.forEach((star, i) => {
-        star.material.opacity = 0.5 + Math.sin(clock.elapsedTime * 2 + i) * 0.3;
-        const s = star.position;
-        const angle = 0.0005;
-        const x = s.x * Math.cos(angle) - s.z * Math.sin(angle);
-        const z = s.x * Math.sin(angle) + s.z * Math.cos(angle);
-        star.position.set(x, s.y, z);
+
+      snowflakesRef.current.forEach((flake) => {
+        flake.position.y -= 0.05;
+        if (flake.position.y < -5) {
+          flake.position.y = Math.random() * 20 + 10;
+          flake.position.x = THREE.MathUtils.randFloatSpread(50);
+          flake.position.z = THREE.MathUtils.randFloatSpread(50);
+        }
       });
 
       controls.update();
@@ -120,86 +119,85 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
   }, []);
 
   // Reload model when darkMode changes
- useEffect(() => {
-  const scene = sceneRef.current;
-  const loader = new GLTFLoader();
-  const textureLoader = new THREE.TextureLoader();
+  useEffect(() => {
+    const scene = sceneRef.current;
+    const loader = new GLTFLoader();
+    const textureLoader = new THREE.TextureLoader();
 
-  const modelPath = "/3d_assets/purple_planet/scene.gltf";
+    const modelPath = "/3d_assets/purple_planet/scene.gltf";
 
-  // Remove and dispose old model
-  if (modelRef.current) {
-    const oldModel = modelRef.current;
-    scene.remove(oldModel);
-    oldModel.traverse((child) => {
-      if (child.isMesh) {
-        child.geometry.dispose();
-        if (child.material.map) child.material.map.dispose();
-        if (Array.isArray(child.material)) {
-          child.material.forEach((m) => m.dispose());
-        } else {
-          child.material.dispose();
-        }
-      }
-    });
-    modelRef.current = null;
-  }
-
-  // Load new model and texture
-  textureLoader.load("/3d_assets/glow.png", (glowTexture) => {
-    loader.load(
-      modelPath,
-      (gltf) => {
-        const model = gltf.scene;
-        modelRef.current = model;
-
-        model.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
+    // Remove and dispose old model
+    if (modelRef.current) {
+      const oldModel = modelRef.current;
+      scene.remove(oldModel);
+      oldModel.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry.dispose();
+          if (child.material.map) child.material.map.dispose();
+          if (Array.isArray(child.material)) {
+            child.material.forEach((m) => m.dispose());
+          } else {
+            child.material.dispose();
           }
-        });
-
-        model.position.set(3.5, 0, 0);
-        scene.add(model);
-
-        const spriteMaterial = new THREE.SpriteMaterial({
-          map: glowTexture,
-          color: 0xa38bfe,
-          blending: THREE.AdditiveBlending,
-          transparent: true,
-          opacity: 0.4,
-        });
-
-        const glow = new THREE.Sprite(spriteMaterial);
-        glow.scale.set(4, 5, 2);
-        model.add(glow);
-
-        if (onLoaded) {
-          setTimeout(() => onLoaded(), 1000);
         }
-      },
-      undefined,
-      (err) => console.error("Error loading model", err)
-    );
-  });
-}, [darkMode]);
+      });
+      modelRef.current = null;
+    }
 
-useEffect(() => {
-  const camera = cameraRef.current;
-  if (!camera) return;
+    // Load new model and texture
+    textureLoader.load("/3d_assets/glow.png", (glowTexture) => {
+      loader.load(
+        modelPath,
+        (gltf) => {
+          const model = gltf.scene;
+          modelRef.current = model;
 
-  const endPosition = darkMode
-    ? { x: 0, y: -0.5, z: 2 } // For dark mode
-    : { x: 5, y: 0, z: 2.5 }; // For light mode
+          model.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
 
-  gsap.to(camera.position, {
-    duration: 2,
-    ...endPosition,
-    ease: "power3.inOut",
-  });
-}, [darkMode]);
+          model.position.set(3.5, 0, 0);
+          scene.add(model);
 
+          const spriteMaterial = new THREE.SpriteMaterial({
+            map: glowTexture,
+            color: 0xa38bfe,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            opacity: 0.4,
+          });
+
+          const glow = new THREE.Sprite(spriteMaterial);
+          glow.scale.set(4, 5, 2);
+          model.add(glow);
+
+          if (onLoaded) {
+            setTimeout(() => onLoaded(), 1000);
+          }
+        },
+        undefined,
+        (err) => console.error("Error loading model", err)
+      );
+    });
+  }, [darkMode]);
+
+  useEffect(() => {
+    const camera = cameraRef.current;
+    if (!camera) return;
+
+    const endPosition = darkMode
+      ? { x: 0, y: -0.5, z: 2 } // For dark mode
+      : { x: 5, y: 0, z: 2.5 }; // For light mode
+
+    gsap.to(camera.position, {
+      duration: 2,
+      ...endPosition,
+      ease: "power3.inOut",
+    });
+  }, [darkMode]);
 
   return <div ref={containerRef} className="w-full h-full absolute" />;
 };

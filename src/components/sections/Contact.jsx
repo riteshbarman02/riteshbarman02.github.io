@@ -23,18 +23,14 @@ const Contact = () => {
       <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 ">
         
         {/* Left Section: Details */}
-        <div className="flex flex-col justify-between relative">
-          <GlowBackground />
+        <div className="flex flex-col gap-2 ">
+         
           <div>
             <h2 className="text-4xl font-bold mb-4">Contact Me</h2>
             <p className="text-white/80 mb-6">
               "Let's build something great together." — Reach out for collaborations, questions, or just to say hi!
             </p>
-            <img
-              src="/svg/developer.png"
-              alt="Contact Illustration"
-              className="w-full aspect-video mb-6 rounded-xl opacity-80"
-            />
+   
           </div>
 
           <div className="flex gap-4 text-2xl mt-4">
@@ -51,7 +47,8 @@ const Contact = () => {
         </div>
 
         {/* Right Section: Form */}
-        <div  className='backdrop-blur-md bg-white/10 border border-white/20 p-8 rounded-2xl shadow-lg'>
+        <div  className='backdrop-blur-md bg-white/10 border border-white/20 p-8 rounded-2xl shadow-lg relative'>
+         <GlowBackground />
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <input
               type="text"
