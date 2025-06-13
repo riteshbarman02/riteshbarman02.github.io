@@ -15,18 +15,20 @@ const App = () => {
 
   return (
     <ContentProvider>
-      <main className="w-full h-screen bg-background flex flex-col items-center text-text gap-6 relative box-border">
+      <main className="w-full  bg-background flex flex-col items-center text-text gap-6 relative box-border">
         {/* Show loader only until Three.js is loaded */}
         {!threeLoaded && <Loader />}
 
         {/* Three.js background is always rendered */}
+        <div className="relative  h-screen w-full">
         <ThreeScene onLoaded={() => setThreeLoaded(true)} darkMode={darkMode} />
+        <Home />
+        </div>
 
         {/* Render rest of the app only after Three.js finishes loading */}
         {threeLoaded && (
           <>
             <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
-            <Home />
             <About />
             <Separater />
             <Projects />

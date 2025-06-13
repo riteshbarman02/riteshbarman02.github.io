@@ -15,7 +15,7 @@ const Navbar = ({ darkMode , setDarkMode}) => {
 
 
   return (
-    <header className="w-full fixed top-0 z-50 bg-white/5 backdrop-blur-xl shadow-lg">
+    <header className="w-full  fixed top-0 z-50 bg-white/5 backdrop-blur-xl shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="text-4xl font-bold text-text-heading italic font-cursive hover:text-text_subheading cursor-pointer shadow-lg rounded-lg p-2 hover:bg-white/20">

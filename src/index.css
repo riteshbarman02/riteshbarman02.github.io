@@ -13,13 +13,13 @@
 }
 
 .light {
-  --color-primary: #00f7ff; /* default (light theme) */
+  --color-primary: #0037ff; /* default (light theme) */
   --color-secondary:#000000;
   --color-tertiary:#2D336B;
-  --color-background: #000000;
-  --color-text: #39FF14;
+  --color-background: #0d0d0e;
+  --color-text: #28e738;
   --color-text_heading: #FFFFFF;
-  --color-text_subheading: #00e727;
+  --color-text_subheading: #ffffff;
 }
 
 @theme {
@@ -56,4 +56,6 @@
 
 body{
   background: var(--color-background);
+  transition: background 1s ease;
 }
+

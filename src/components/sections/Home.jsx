@@ -24,7 +24,7 @@ const Home = () => {
   if (!home) return <p>Loading...</p>;
 
   return (
-    <section className="home pt-20 w-full flex flex-col lg:flex-row justify-between bg-transparent text-text max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 gap-6 ">
+    <section className="home h-screen pt-20 w-full flex flex-col lg:flex-row justify-between bg-transparent text-text max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 gap-6 ">
       
       {/* Text content */}
       <div className="home-content flex-1 self-center lg:py-25 flex py-4 flex-col gap-6 max-w-2xl relative">
