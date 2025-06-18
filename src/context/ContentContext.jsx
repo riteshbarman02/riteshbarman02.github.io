@@ -12,9 +12,13 @@ export const ContentProvider = ({ children }) => {
 
   const base = import.meta.env.BASE_URL || './';
 
+  const joinPath = (base, path) => {
+    return base.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '');
+  };
+
   const loadMarkdown = async (relativePath) => {
     try {
-      const fullPath = new URL(relativePath, base).href;
+      const fullPath = joinPath(base, relativePath);
       const res = await fetch(fullPath);
       if (!res.ok) throw new Error(`Failed to load ${fullPath}: ${res.status}`);
       const text = await res.text();
@@ -42,13 +46,15 @@ export const ContentProvider = ({ children }) => {
 
     const loadProjects = async () => {
       try {
-        const res = await fetch(new URL('content/project/index.json', base).href);
+        const indexUrl = joinPath(base, 'content/project/index.json');
+        const res = await fetch(indexUrl);
         if (!res.ok) throw new Error(`Failed to fetch index.json: ${res.status}`);
         const fileList = await res.json();
 
         const projectData = await Promise.all(
           fileList.map(async (filename) => {
-            const { metadata, body } = await loadMarkdown(`content/project/${filename}`);
+            const filePath = `content/project/${filename}`;
+            const { metadata, body } = await loadMarkdown(filePath);
             return { ...metadata, body };
           })
         );
@@ -61,7 +67,7 @@ export const ContentProvider = ({ children }) => {
 
     loadPages();
     loadProjects();
-  }, [base]);
+  }, []);
 
   return (
     <ContentContext.Provider value={{ ...content, projects }}>
