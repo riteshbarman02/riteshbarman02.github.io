@@ -11,7 +11,6 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
   const sceneRef = useRef(null);
   const cameraRef = useRef(null);
   const controlsRef = useRef(null);
-  const starsRef = useRef([]);
   const snowflakesRef = useRef([]);
 
   useEffect(() => {
@@ -47,7 +46,6 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
     // OrbitControls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    // controls.enableZoom = false;
     controls.enablePan = false;
     controlsRef.current = controls;
 
@@ -62,15 +60,13 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
       );
       flake.position.set(
         THREE.MathUtils.randFloatSpread(50),
-        Math.random() * 20 + 10, // Start above
+        Math.random() * 20 + 10,
         THREE.MathUtils.randFloatSpread(50)
       );
       scene.add(flake);
       snowflakes.push(flake);
     }
     snowflakesRef.current = snowflakes;
-
-    // GSAP camera animation
 
     // Resize
     const handleResize = () => {
@@ -91,7 +87,6 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
         modelRef.current.rotation.y += delta * 0.3;
         modelRef.current.position.y = -Math.sin(clock.elapsedTime) * 0.1;
       }
-
 
       snowflakesRef.current.forEach((flake) => {
         flake.position.y -= 0.05;
@@ -122,8 +117,6 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
   useEffect(() => {
     const scene = sceneRef.current;
     const loader = new GLTFLoader();
-    const textureLoader = new THREE.TextureLoader();
-
     const modelPath = "/3d_assets/purple_planet/scene.gltf";
 
     // Remove and dispose old model
@@ -144,44 +137,30 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
       modelRef.current = null;
     }
 
-    // Load new model and texture
-    textureLoader.load("/3d_assets/glow.png", (glowTexture) => {
-      loader.load(
-        modelPath,
-        (gltf) => {
-          const model = gltf.scene;
-          modelRef.current = model;
+    // Load new model
+    loader.load(
+      modelPath,
+      (gltf) => {
+        const model = gltf.scene;
+        modelRef.current = model;
 
-          model.traverse((child) => {
-            if (child.isMesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-            }
-          });
-
-          model.position.set(3.5, 0, 0);
-          scene.add(model);
-
-          const spriteMaterial = new THREE.SpriteMaterial({
-            map: glowTexture,
-            color: 0xa38bfe,
-            blending: THREE.AdditiveBlending,
-            transparent: true,
-            opacity: 0.4,
-          });
-
-          const glow = new THREE.Sprite(spriteMaterial);
-          glow.scale.set(4, 5, 2);
-          model.add(glow);
-
-          if (onLoaded) {
-            setTimeout(() => onLoaded(), 1000);
+        model.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
           }
-        },
-        undefined,
-        (err) => console.error("Error loading model", err)
-      );
-    });
+        });
+
+        model.position.set(3.5, 0, 0);
+        scene.add(model);
+
+        if (onLoaded) {
+          setTimeout(() => onLoaded(), 1000);
+        }
+      },
+      undefined,
+      (err) => console.error("Error loading model", err)
+    );
   }, [darkMode]);
 
   useEffect(() => {
@@ -189,8 +168,8 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
     if (!camera) return;
 
     const endPosition = darkMode
-      ? { x: 0, y: -0.5, z: 2 } // For dark mode
-      : { x: 5, y: 0, z: 2.5 }; // For light mode
+      ? { x: 0, y: -0.5, z: 2 }
+      : { x: 5, y: 0, z: 2.5 };
 
     gsap.to(camera.position, {
       duration: 2,
