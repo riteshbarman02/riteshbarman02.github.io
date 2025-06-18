@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "npm run update-index && vite",
     "build": "npm run update-index && vite build",
+    "prebuild": "node scripts/generateIndex.cjs",
     "update-index": "node scripts/generateIndex.cjs",
     "build-docs": "vite build --outDir docs",
     "lint": "eslint .",
