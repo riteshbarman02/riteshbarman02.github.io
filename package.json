@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run update-index && vite",
+    "build": "npm run update-index && vite build",
+    "update-index": "node scripts/generateIndex.cjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

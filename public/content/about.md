@@ -1,5 +1,6 @@
 ---
 page: "About me"
+skills: ["JavaScript", "React", "Node.js", "Three.js"]
 
 ---
 
