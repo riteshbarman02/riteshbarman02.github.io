@@ -20,14 +20,15 @@ const App = () => {
         {!threeLoaded && <Loader />}
 
         {/* Three.js background is always rendered */}
-        <div className="relative  h-screen w-full">
+        <div className="fixed  h-screen w-full">
         <ThreeScene onLoaded={() => setThreeLoaded(true)} darkMode={darkMode} />
-        <Home />
+
         </div>
 
         {/* Render rest of the app only after Three.js finishes loading */}
         {threeLoaded && (
           <>
+                  <Home />
             <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
             <About />
             <Separater />

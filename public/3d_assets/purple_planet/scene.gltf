@@ -383,7 +383,7 @@
       "uri": "textures/Clouds_1_baseColor.png"
     },
     {
-      "uri": "textures/Clouds_1_normal.png"
+      "uri": "textures/Clouds_1_normal.jpg"
     },
     {
       "uri": "textures/PurplePlanet_baseColor.png"
@@ -398,7 +398,7 @@
       "uri": "textures/Clouds_0_baseColor.png"
     },
     {
-      "uri": "textures/Clouds_0_normal.png"
+      "uri": "textures/Clouds_0_normal.jpg"
     }
   ],
   "materials": [

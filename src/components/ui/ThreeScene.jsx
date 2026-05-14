@@ -1,27 +1,47 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import gsap from "gsap";
 
 const ThreeScene = ({ onLoaded, darkMode }) => {
   const containerRef = useRef(null);
-  const rendererRef = useRef(null);
-  const modelRef = useRef(null);
-  const sceneRef = useRef(null);
   const cameraRef = useRef(null);
-  const controlsRef = useRef(null);
   const snowflakesRef = useRef([]);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScrollPosition = () => {
+      const viewportHeight = window.innerHeight || 1;
+      const progress = Math.min(
+        Math.max(window.scrollY / viewportHeight, 0),
+        1
+      );
+      setScrollProgress((prev) => (Math.abs(prev - progress) < 0.001 ? prev : progress));
+    };
+
+    handleScrollPosition();
+    window.addEventListener("scroll", handleScrollPosition, { passive: true });
+    window.addEventListener("resize", handleScrollPosition);
+
+    return () => {
+      window.removeEventListener("scroll", handleScrollPosition);
+      window.removeEventListener("resize", handleScrollPosition);
+    };
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
+    if (!container) {
+      if (onLoaded) onLoaded();
+      return;
+    }
     const { width, height } = container.getBoundingClientRect();
 
     const scene = new THREE.Scene();
-    sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    camera.position.set(3.5, 0, -10);
+    camera.position.set(0, 8, 0);
+    camera.lookAt(0,0,0)
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -29,7 +49,6 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
 
     // Lights
     scene.add(new THREE.AmbientLight(0xffffff, 1));
@@ -47,13 +66,13 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.enablePan = false;
-    controlsRef.current = controls;
+    controls.enableZoom = false
 
     // Snowfall
     const snowflakes = [];
     const snowMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-    for (let i = 0; i < 300; i++) {
+    for (let i = 0; i < 1000; i++) {
       const flake = new THREE.Mesh(
         new THREE.SphereGeometry(0.02, 6, 6),
         snowMaterial.clone()
@@ -78,15 +97,9 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
     window.addEventListener("resize", handleResize);
 
     // Animate loop
-    const clock = new THREE.Clock();
+    let animationFrameId;
     const animate = () => {
-      requestAnimationFrame(animate);
-
-      const delta = clock.getDelta();
-      if (modelRef.current) {
-        modelRef.current.rotation.y += delta * 0.3;
-        modelRef.current.position.y = -Math.sin(clock.elapsedTime) * 0.1;
-      }
+      animationFrameId = requestAnimationFrame(animate);
 
       snowflakesRef.current.forEach((flake) => {
         flake.position.y -= 0.05;
@@ -101,9 +114,13 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
       renderer.render(scene, camera);
     };
     animate();
+    setTimeout(() => {
+      if (onLoaded) onLoaded();
+    }, 300);
 
     // Cleanup
     return () => {
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);
       controls.dispose();
       renderer.dispose();
@@ -113,70 +130,27 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
     };
   }, []);
 
-  // Reload model when darkMode changes
-  useEffect(() => {
-    const scene = sceneRef.current;
-    const loader = new GLTFLoader();
-    const modelPath = "/3d_assets/purple_planet/scene.gltf";
-
-    // Remove and dispose old model
-    if (modelRef.current) {
-      const oldModel = modelRef.current;
-      scene.remove(oldModel);
-      oldModel.traverse((child) => {
-        if (child.isMesh) {
-          child.geometry.dispose();
-          if (child.material.map) child.material.map.dispose();
-          if (Array.isArray(child.material)) {
-            child.material.forEach((m) => m.dispose());
-          } else {
-            child.material.dispose();
-          }
-        }
-      });
-      modelRef.current = null;
-    }
-
-    // Load new model
-    loader.load(
-      modelPath,
-      (gltf) => {
-        const model = gltf.scene;
-        modelRef.current = model;
-
-        model.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-          }
-        });
-
-        model.position.set(3.5, 0, 0);
-        scene.add(model);
-
-        if (onLoaded) {
-          setTimeout(() => onLoaded(), 1000);
-        }
-      },
-      undefined,
-      (err) => console.error("Error loading model", err)
-    );
-  }, [darkMode]);
-
   useEffect(() => {
     const camera = cameraRef.current;
     if (!camera) return;
 
-    const endPosition = darkMode
-      ? { x: 0, y: -0.5, z: 2 }
-      : { x: 5, y: 0, z: 2.5 };
+    const topSectionPosition = { x: 0, y: -8, z: 0 };
+    const scrolledPastPosition = { x: 5, y: 0, z: 2 };
+
+    const lerp = (start, end, t) => start + (end - start) * t;
+    const endPosition = {
+      x: lerp(topSectionPosition.x, scrolledPastPosition.x, scrollProgress),
+      y: lerp(topSectionPosition.y, scrolledPastPosition.y, scrollProgress),
+      z: lerp(topSectionPosition.z, scrolledPastPosition.z, scrollProgress),
+    };
 
     gsap.to(camera.position, {
-      duration: 2,
+      duration: 0,
       ...endPosition,
-      ease: "power3.inOut",
+      ease: "back.in",
+      overwrite: "auto",
     });
-  }, [darkMode]);
+  }, [darkMode, scrollProgress]);
 
   return <div ref={containerRef} className="w-full h-full absolute" />;
 };
