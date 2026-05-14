@@ -12,8 +12,10 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
   useEffect(() => {
     const handleScrollPosition = () => {
       const viewportHeight = window.innerHeight || 1;
+      const startScroll = 100;
+      const scrollRange = Math.max(viewportHeight - startScroll, 1);
       const progress = Math.min(
-        Math.max(window.scrollY / viewportHeight, 0),
+        Math.max((window.scrollY - startScroll) / scrollRange, 0),
         1
       );
       setScrollProgress((prev) => (Math.abs(prev - progress) < 0.001 ? prev : progress));
@@ -137,7 +139,7 @@ const ThreeScene = ({ onLoaded, darkMode }) => {
     const topSectionPosition = { x: 0, y: -8, z: 0 };
     const scrolledPastPosition = { x: 5, y: 0, z: 2 };
 
-    const lerp = (start, end, t) => start + (end - start) * t;
+    const lerp = (start , end, t) => start + (end - start) * t;
     const endPosition = {
       x: lerp(topSectionPosition.x, scrolledPastPosition.x, scrollProgress),
       y: lerp(topSectionPosition.y, scrolledPastPosition.y, scrollProgress),

@@ -12,7 +12,7 @@ const About = () => {
   const skills = metadata?.skills || [];
 
   return (
-    <div className='home w-full flex flex-col justify-between bg-background text-text max-w-7xl mx-auto px-2 sm:px-6 gap-8 lg:py-8'>
+    <div className='home w-full flex flex-col justify-between bg-transparent text-text max-w-7xl mx-auto px-2 sm:px-6 gap-8 lg:py-8'>
       <h2 className='text-3xl animate-word-fade font-medium text-text-heading mb-8'>
         About
       </h2>
