@@ -2,7 +2,9 @@ import React, { createContext, useState, useEffect } from 'react';
 import matter from 'gray-matter';
 import { Buffer } from 'buffer';
 
-window.Buffer = Buffer;
+if (typeof window !== "undefined" && !window.Buffer) {
+  window.Buffer = Buffer;
+}
 
 export const ContentContext = createContext();
 
@@ -10,10 +12,12 @@ export const ContentProvider = ({ children }) => {
   const [content, setContent] = useState({});
   const [projects, setProjects] = useState([]);
 
-  const base = import.meta.env.BASE_URL || './';
+  const base = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
   const joinPath = (base, path) => {
-    return base.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '');
+    const normalizedBase = base.replace(/\/+$/, "");
+    const normalizedPath = path.replace(/^\/+/, "");
+    return `${normalizedBase}/${normalizedPath}`.replace(/^\/{2,}/, "/");
   };
 
   const loadMarkdown = async (relativePath) => {

@@ -4,20 +4,20 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npm run update-index && vite",
-    "build": "npm run update-index && vite build",
+    "dev": "npm run update-index && next dev",
+    "build": "npm run update-index && next build",
     "prebuild": "node scripts/generateIndex.cjs",
     "update-index": "node scripts/generateIndex.cjs",
-    "build-docs": "vite build --outDir docs",
+    "start": "next start",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "next start"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.6",
     "buffer": "^6.0.3",
     "gray-matter": "^4.0.3",
     "gsap": "^3.13.0",
     "lucide-react": "^0.509.0",
+    "next": "^15.3.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
@@ -28,16 +28,15 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@tailwindcss/postcss": "^4.1.6",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "postcss": "^8.5.3",
-    "tailwindcss": "^4.1.6",
-    "vite": "^6.3.5"
+    "tailwindcss": "^4.1.6"
   }
 }
